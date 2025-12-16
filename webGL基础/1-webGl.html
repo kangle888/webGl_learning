@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <canvas id="canvasId" width="400" height="400">
+    此浏览器不支持canvas
+  </canvas>
+</body>
+</html>
+<script>
+  const canvas = document.getElementById('canvasId');
+  const gl = canvas.getContext('webgl');
+
+  if (!gl) {
+    console.error('WebGL not supported');
+  } else {
+    // 设置清除颜色为黑色，不透明
+    // 解释：参数依次为红、绿、蓝、透明度，取值范围0.0-1.0
+    gl.clearColor(1.0, 0.0, 0.0, 1.0);
+    // 清除颜色缓冲区
+    // gl 方法解释 
+    // clear 方法用于清除指定的缓冲区  
+    // COLOR_BUFFER_BIT 表示清除颜色缓冲区
+    // DEPTH_BUFFER_BIT 表示清除深度缓冲区
+    // STENCIL_BUFFER_BIT 表示清除模板缓冲区
+    gl.clear(gl.COLOR_BUFFER_BIT);
+  }
+</script>
