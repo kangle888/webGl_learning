@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="./index.js"></script>
+  <style>
+    *{
+      margin: 0;
+      padding: 0;
+    }
+    #canvasId{
+      margin: 50px auto 0;
+      display: block;
+      background: yellow;
+    }
+  </style>
+</head>
+<body><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <canvas id="canvasId" width="400" height="400">
+    此浏览器不支持canvas
+  </canvas>
+</body>
+</html>
+<script>
+  const canvas = document.getElementById('canvasId');
+  const gl = canvas.getContext('webgl');
+
+  if (!gl) {
+    console.error('WebGL not supported');
+  } else {
+    // 着色器
+    // 创建着色器源码 
+    const VERTEX_SHADER_SOURCE = `
+        // 必须要存在main函数
+        // attribute 变量用于接收外部数据  值能传递顶点着色器
+      attribute vec4 a_Position;  
+      void main() {
+        // 要绘制的点的坐标 分别对应 x,y,z,w（齐次坐标）
+        //（x/w, y/w, z/w）为最终坐标  
+        gl_Position = a_Position; 
+        // 点的大小
+        gl_PointSize = 5.0;
+      }
+    `;
+    // 片元着色器源码
+    const FRAGMENT_SHADER_SOURCE = `
+      void main() {
+        // 设置点的颜色为红色
+        // (r, g, b, a) 取值范围0.0-1.0
+        gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+      }
+    `;
+
+    const program =  initShaderProgram(gl, VERTEX_SHADER_SOURCE, FRAGMENT_SHADER_SOURCE);
+    // 参数含义  program：着色器程序  name：属性变量名称
+    const a_Position = gl.getAttribLocation(program, 'a_Position');
+    // 给attribute变量赋值  参数含义  location：属性变量位置  x,y,z,w
+    gl.vertexAttrib1f(a_Position, 0.0);
+    // 还有 3f 2f 1f方法
+    // 绘制一个点  第一个参数表示绘制的图元类型  第二个参数表示从哪个顶点开始绘制  第三个参数表示绘制多少个顶点
+    // gl.drawArrays(gl.POINTS, 0, 1);
+    const points = [];
+    canvas.addEventListener('mousemove', (e) => {
+      // 获取鼠标点击位置 相对于浏览器左上角
+      const x = e.clientX;
+      const y = e.clientY;
+      // 获取canvas位置
+      const rect = e.target.getBoundingClientRect();
+      // 计算鼠标点击位置相对于canvas左上角的坐标
+      const x_in_canvas = x - rect.left;
+      const y_in_canvas = y - rect.top;
+      // 将canvas坐标转换为webGL坐标
+      const webgl_x = (x_in_canvas - canvas.width / 2) / (canvas.width / 2);
+      const webgl_y = (canvas.height / 2 - y_in_canvas) / (canvas.height / 2);
+      points.push({x: webgl_x, y: webgl_y});
+      for (let i = 0; i < points.length; i++) {
+        const p = points[i];
+        gl.vertexAttrib2f(a_Position, p.x, p.y);
+        gl.drawArrays(gl.POINTS, 0, 1);
+      }
+    });
+  }
+  
+</script>
+  
+</body>
+</html>

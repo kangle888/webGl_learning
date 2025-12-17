@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="./index.js"></script>
+  <style>
+    *{
+      margin: 0;
+      padding: 0;
+    }
+    #canvasId{
+      margin: 50px auto 0;
+      display: block;
+      background: yellow;
+    }
+  </style>
+</head>
+<body><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <canvas id="canvasId" width="400" height="400">
+    此浏览器不支持canvas
+  </canvas>
+</body>
+</html>
+<script>
+  const canvas = document.getElementById('canvasId');
+  const gl = canvas.getContext('webgl');
+
+  if (!gl) {
+    console.error('WebGL not supported');
+  } else {
+    // 着色器
+    // 创建着色器源码 
+    const VERTEX_SHADER_SOURCE = `
+        // 必须要存在main函数
+        // attribute 变量用于接收外部数据  值能传递顶点着色器
+      attribute vec4 a_Position;  
+      attribute float a_PointSize;
+      void main() {
+        // 要绘制的点的坐标 分别对应 x,y,z,w（齐次坐标）
+        //（x/w, y/w, z/w）为最终坐标  
+        gl_Position = a_Position; 
+        // 点的大小
+        gl_PointSize = a_PointSize;
+      }
+    `;
+    // 片元着色器源码
+    const FRAGMENT_SHADER_SOURCE = `
+      precision mediump float;  
+      uniform vec2 u_FragColor;
+      // 针对uniform1f特殊情况 申明变量 
+      // uniform float u_FragColor;
+      void main() {
+        // 设置点的颜色为红色
+        // (r, g, b, a) 取值范围0.0-1.0
+        gl_FragColor = vec4(u_FragColor.r, u_FragColor.g, 0.0, 1.0);
+        // gl_FragColor = vec4(u_FragColor, 0.0, 0.0, 1.0); // 只能设置 r 分量的值
+      }
+    `;
+
+    const program =  initShaderProgram(gl, VERTEX_SHADER_SOURCE, FRAGMENT_SHADER_SOURCE);
+    // 参数含义  program：着色器程序  name：属性变量名称
+    const a_Position = gl.getAttribLocation(program, 'a_Position');
+    const a_PointSize = gl.getAttribLocation(program, 'a_PointSize');
+    // 着色器中 uniform 变量位置
+    const u_FragColor = gl.getUniformLocation(program, 'u_FragColor');
+    
+    const points = new Float32Array
+    ([
+      -0.5, -0.5,
+      0.0, 0.0,
+      0.5, 0.5,
+      -0.5, 0.5,
+      0.5, -0.5
+    ]);
+    const buffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, points, gl.STATIC_DRAW);
+    gl.vertexAttribPointer(a_Position, 2, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(a_Position);
+    // gl.drawArrays(gl.POINTS, 0, 5);
+
+    const size = new Float32Array
+    ([
+      10.0,
+      20.0,
+      30.0,
+      40.0,
+      50.0
+    ]);
+    const sizeBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, sizeBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, size, gl.STATIC_DRAW);
+    gl.vertexAttribPointer(a_PointSize, 1, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(a_PointSize);
+    gl.drawArrays(gl.POINTS, 0, 5);
+    
+  }
+  
+</script>
+  
+</body>
+</html>

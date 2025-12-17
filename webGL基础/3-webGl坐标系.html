@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="./index.js"></script>
+  <style>
+    *{
+      margin: 0;
+      padding: 0;
+    }
+    #canvasId{
+      background: gray;
+    }
+    body::before{
+      content: '';
+      display: block;
+      width: 400px;
+      height: 1px;
+      background:black;
+      position: absolute;
+      top: 200px;
+      left: 0;
+    }
+    body::after{
+      content: '';
+      display: block;
+      width: 1px;
+      height: 400px;
+      background:red;
+      position: absolute;
+      top: 0;
+      left: 200px;
+    }
+  </style>
+</head>
+<body><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <canvas id="canvasId" width="400" height="400">
+    此浏览器不支持canvas
+  </canvas>
+</body>
+</html>
+<script>
+  const canvas = document.getElementById('canvasId');
+  const gl = canvas.getContext('webgl');
+
+  if (!gl) {
+    console.error('WebGL not supported');
+  } else {
+    // 着色器
+    // 创建着色器源码 
+    const VERTEX_SHADER_SOURCE = `
+        // 必须要存在main函数
+      void main() {
+        // 要绘制的点的坐标 分别对应 x,y,z,w（齐次坐标）
+        //（x/w, y/w, z/w）为最终坐标  
+        gl_Position = vec4(0.5, 0.5, 0.5, 1.0);
+        // 点的大小
+        gl_PointSize = 30.0;
+      }
+    `;
+    // 片元着色器源码
+    const FRAGMENT_SHADER_SOURCE = `
+      void main() {
+        // 设置点的颜色为红色
+        // (r, g, b, a) 取值范围0.0-1.0
+        gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+      }
+    `;
+
+    initShaderProgram(gl, VERTEX_SHADER_SOURCE, FRAGMENT_SHADER_SOURCE);
+
+    // 绘制一个点  第一个参数表示绘制的图元类型  第二个参数表示从哪个顶点开始绘制  第三个参数表示绘制多少个顶点
+    gl.drawArrays(gl.POINTS, 0, 1);
+    // 绘制线
+    // gl.drawArrays(gl.LINES, 0, 2);
+    // 绘制三角形
+    // gl.drawArrays(gl.TRIANGLES, 0, 3);
+  }
+  
+</script>
+  
+</body>
+</html>
