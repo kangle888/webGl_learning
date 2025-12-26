@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="../index.js"></script>
+  <style>
+    *{
+      margin: 0;
+      padding: 0;
+    }
+    #canvasId{
+      margin: 50px auto 0;
+      display: block;
+      background: yellow;
+    }
+  </style>
+</head>
+<body><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <canvas id="canvasId" width="400" height="400">
+    此浏览器不支持canvas
+  </canvas>
+</body>
+</html>
+<script>
+  const canvas = document.getElementById('canvasId');
+  const gl = canvas.getContext('webgl');
+
+  if (!gl) {
+    console.error('WebGL not supported');
+  } else {
+    // 着色器
+    // 创建着色器源码 
+    const VERTEX_SHADER_SOURCE = `
+      attribute vec4 a_Position;
+      varying vec4 v_Color;  
+      void main() {
+        v_Color = a_Position;
+        gl_Position = a_Position; 
+      }
+    `;
+    // 片元着色器源码
+    const FRAGMENT_SHADER_SOURCE = ` 
+      precision lowp float;
+      varying vec4 v_Color;
+       
+      void main() {
+        gl_FragColor = v_Color;
+      }
+    `;
+
+    const program =  initShaderProgram(gl, VERTEX_SHADER_SOURCE, FRAGMENT_SHADER_SOURCE);
+    // 参数含义  program：着色器程序  name：属性变量名称
+    const a_Position = gl.getAttribLocation(program, 'a_Position');
+
+    const points = new Float32Array
+    ([
+      -0.5, -0.5,
+      0.0, 0.5,
+      0.5, -0.5,
+    ]);
+    const buffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, points, gl.STATIC_DRAW);
+    gl.vertexAttribPointer(a_Position, 2, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(a_Position);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+  }
+  
+</script>
+  
+</body>
+</html>

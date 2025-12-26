@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="./index.js"></script>
+  <style>
+    *{
+      margin: 0;
+      padding: 0;
+    }
+    #canvasId{
+      margin: 50px auto 0;
+      display: block;
+      background: yellow;
+    }
+  </style>
+</head>
+<body><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <canvas id="canvasId" width="400" height="400">
+    此浏览器不支持canvas
+  </canvas>
+</body>
+</html>
+<script>
+  const canvas = document.getElementById('canvasId');
+  const gl = canvas.getContext('webgl');
+
+  if (!gl) {
+    console.error('WebGL not supported');
+  } else {
+    // 着色器
+    // 创建着色器源码 
+    const VERTEX_SHADER_SOURCE = `
+      attribute vec4 a_Position;  
+      uniform mat4 mat;
+      void main() {
+        gl_Position = mat*a_Position; 
+        gl_PointSize = 1.0;
+      }
+    `;
+    // 片元着色器源码
+    const FRAGMENT_SHADER_SOURCE = `
+      void main() {
+        gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+      }
+    `;
+
+    const program =  initShaderProgram(gl, VERTEX_SHADER_SOURCE, FRAGMENT_SHADER_SOURCE);
+    // 参数含义  program：着色器程序  name：属性变量名称
+    const a_Position = gl.getAttribLocation(program, 'a_Position');
+    const mat = gl.getUniformLocation(program, 'mat');
+  
+
+    function getRotationMatrix(x =0, y=0, z=0) {
+      return new Float32Array([
+        1.0, 0.0, 0.0, 0.0,
+        0.0,  1.0, 0.0, 0.0,
+        0.0, 0.0, 1.0, 0.0,
+        x, y, z, 1.0
+      ]);
+    }
+    const points = new Float32Array
+    ([
+      -0.5, -0.5,
+      0.0, 0.5,
+      0.5, -0.5,
+    ]);
+    const buffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, points, gl.STATIC_DRAW);
+    gl.vertexAttribPointer(a_Position, 2, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(a_Position);
+    // gl.drawArrays(gl.POINTS, 0, 5);
+    let x = -1;
+    function animation (){
+      x += 0.01;
+      if(x > 1){
+        x = -1;
+      }
+      const matrix = getRotationMatrix(x,x);
+      gl.uniformMatrix4fv(mat, false, matrix);
+      // gl.vertexAttrib1f(deg, x);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+      requestAnimationFrame(animation);
+    }
+    animation();
+  }
+  
+</script>
+  
+</body>
+</html>
